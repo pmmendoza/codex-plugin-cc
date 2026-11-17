@@ -3,7 +3,7 @@
 This fork adds two things to `openai/codex-plugin-cc`:
 
 - the `codex-rescue` forwarder subagent runs on **haiku**;
-- `/codex:rescue --danger` runs Codex with sandbox `danger-full-access` (approvals are already `never`).
+- `/codex:rescue --danger` runs Codex with sandbox `danger-full-access` (approvals are already `never`). Allowed only with `--model gpt-6.1-terra`+ at `--effort medium|high|xhigh`, or `--model gpt-6-astra`+ at any effort.
 
 `sync.sh` runs weekly via launchd (`com.pm.codex-fork-sync`, Mondays 10:00) on each Mac.
 It rebases `main` onto `upstream/main` only if there are no conflicts and the tests pass, then pushes and runs `claude plugin update codex@openai-codex`.

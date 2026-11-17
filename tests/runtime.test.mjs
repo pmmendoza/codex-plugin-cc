@@ -2268,9 +2268,21 @@ test("task --danger runs Codex with danger-full-access sandbox", () => {
   run("git", ["add", "README.md"], { cwd: repo });
   run("git", ["commit", "-m", "init"], { cwd: repo });
 
-  for (const [flags, expected] of [[["--danger"], "danger-full-access"], [["--write"], "workspace-write"], [[], "read-only"]]) {
+  for (const [flags, expected] of [[["--danger", "--model", "gpt-6-astra"], "danger-full-access"], [["--danger", "--model", "gpt-6.1-terra", "--effort", "medium"], "danger-full-access"], [["--write"], "workspace-write"], [[], "read-only"]]) {
     const result = run("node", [SCRIPT, "task", ...flags, "diagnose the failing test"], { cwd: repo, env: buildEnv(binDir) });
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(fs.readFileSync(statePath, "utf8")).lastThreadStartSandbox, expected);
+  }
+});
+
+test("task --danger rejects models outside the allowlist before starting Codex", () => {
+  const repo = makeTempDir();
+  const binDir = makeTempDir();
+  installFakeCodex(binDir);
+  initGitRepo(repo);
+  for (const flags of [[], ["--model", "gpt-6-luna"], ["--model", "gpt-6.1-terra"], ["--model", "gpt-6.1-terra", "--effort", "low"], ["--model", "gpt-5.6-terra", "--effort", "high"], ["--model", "gpt-5.6-astra"], ["--model", "spark"]]) {
+    const result = run("node", [SCRIPT, "task", "--danger", ...flags, "x"], { cwd: repo, env: buildEnv(binDir) });
+    assert.notEqual(result.status, 0, `accepted ${flags.join(" ")}`);
+    assert.match(result.stderr, /--danger requires/);
   }
 });

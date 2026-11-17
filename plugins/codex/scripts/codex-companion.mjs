@@ -111,6 +111,19 @@ function normalizeRequestedModel(model) {
   return MODEL_ALIASES.get(normalized.toLowerCase()) ?? normalized;
 }
 
+// fork: --danger only for trusted models: terra >=6.1 at effort >=medium, or astra >=6 at any effort.
+const DANGER_EFFORTS = ["medium", "high", "xhigh"];
+function assertDangerAllowed(model, effort) {
+  const m = /^gpt-(\d+)(?:\.(\d+))?-(?:codex-)?(terra|astra)$/.exec(model ?? "");
+  const ver = m ? [Number(m[1]), Number(m[2] ?? 0)] : null;
+  const atLeast = (major, minor) => ver && (ver[0] > major || (ver[0] === major && ver[1] >= minor));
+  if (m?.[3] === "astra" && atLeast(6, 0)) return;
+  if (m?.[3] === "terra" && atLeast(6, 1) && DANGER_EFFORTS.includes(effort)) return;
+  throw new Error(
+    `--danger requires an explicit --model gpt-6.1-terra (or newer) with --effort medium|high|xhigh, or --model gpt-6-astra (or newer). Got model=${model ?? "default"} effort=${effort ?? "default"}.`
+  );
+}
+
 function normalizeReasoningEffort(effort) {
   if (effort == null) {
     return null;
@@ -781,6 +794,7 @@ async function handleTask(argv) {
     throw new Error("Choose either --resume/--resume-last or --fresh.");
   }
   const danger = Boolean(options.danger); // fork: danger-full-access sandbox, approvals already "never"
+  if (danger) assertDangerAllowed(model, effort);
   const write = Boolean(options.write) || danger;
   const taskMetadata = buildTaskRunMetadata({
     prompt,

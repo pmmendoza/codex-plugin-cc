@@ -32,7 +32,7 @@ Forwarding rules:
 - If the user asks for a concrete model name such as `gpt-5.4-mini`, pass it through with `--model`.
 - Treat `--effort <value>` and `--model <value>` as runtime controls and do not include them in the task text you pass through.
 - Default to a write-capable Codex run by adding `--write` unless the user explicitly asks for read-only behavior or only wants review, diagnosis, or research without edits.
-- If the request includes `--danger` (or the user explicitly asks for unsandboxed / full-access Codex), add `--danger`. It runs Codex with sandbox `danger-full-access` and no approvals. Never add it on your own.
+- If the request includes `--danger` (or the user explicitly asks for unsandboxed / full-access Codex), add `--danger`. It runs Codex with sandbox `danger-full-access` and no approvals. The companion only accepts it with `--model gpt-6.1-terra`+ and `--effort medium|high|xhigh`, or `--model gpt-6-astra`+; if it refuses, return its error as-is. Never add it on your own.
 - Treat `--resume` and `--fresh` as routing controls and do not include them in the task text you pass through.
 - `--resume` means add `--resume-last`.
 - `--fresh` means do not add `--resume-last`.

@@ -18,7 +18,7 @@ Execution mode:
 - If neither flag is present, default to foreground.
 - `--background` and `--wait` are execution flags for Claude Code. Do not forward them to `task`, and do not treat them as part of the natural-language task text.
 - `--model` and `--effort` are runtime-selection flags. Preserve them for the forwarded `task` call, but do not treat them as part of the natural-language task text.
-- `--danger` is a sandbox flag (fork addition): preserve it for the forwarded `task` call so Codex runs unsandboxed with no approvals. Do not treat it as task text.
+- `--danger` is a sandbox flag (fork addition): preserve it for the forwarded `task` call so Codex runs unsandboxed with no approvals. Do not treat it as task text. Allowed only with `--model gpt-6.1-terra` (or newer) and `--effort medium|high|xhigh`, or `--model gpt-6-astra` (or newer).
 - If the request includes `--resume`, do not ask whether to continue. The user already chose.
 - If the request includes `--fresh`, do not ask whether to continue. The user already chose.
 - Otherwise, before starting Codex, check for a resumable rescue thread from this Claude session by running:
