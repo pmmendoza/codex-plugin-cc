@@ -22,4 +22,11 @@ else
   git push -q --force-with-lease="main:$before" origin main && log "rebased + pushed" || { log "push failed"; exit 1; }
 fi
 
-claude plugin marketplace update openai-codex && claude plugin update codex@openai-codex && log "plugin refreshed"
+claude plugin marketplace update openai-codex && claude plugin update codex@openai-codex || { log "plugin update failed"; exit 1; }
+# `plugin update` only reinstalls on a version bump; compare content and force a reinstall if the installed copy differs.
+installed=$(node -e 'console.log(require(process.env.HOME + "/.claude/plugins/installed_plugins.json").plugins["codex@openai-codex"][0].installPath)')
+if diff -rq -x .in_use plugins/codex "$installed" >/dev/null; then
+  log "plugin up to date"
+else
+  claude plugin uninstall codex@openai-codex && claude plugin install codex@openai-codex --scope user && log "plugin content changed; reinstalled (run /reload-plugins in open sessions)"
+fi
