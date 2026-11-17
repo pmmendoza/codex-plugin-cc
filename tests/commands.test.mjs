@@ -76,6 +76,7 @@ test("continue is not exposed as a user-facing command", () => {
     "adversarial-review.md",
     "cancel.md",
     "rescue.md",
+    "rescue_nobox.md",
     "result.md",
     "review.md",
     "setup.md",
