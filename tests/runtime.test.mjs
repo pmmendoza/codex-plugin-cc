@@ -2257,3 +2257,20 @@ test("setup and status honor --cwd when reading shared session runtime", () => {
   assert.equal(payload.sessionRuntime.mode, "shared");
   assert.equal(payload.sessionRuntime.endpoint, "unix:/tmp/fake-broker.sock");
 });
+
+test("task --danger runs Codex with danger-full-access sandbox", () => {
+  const repo = makeTempDir();
+  const binDir = makeTempDir();
+  const statePath = path.join(binDir, "fake-codex-state.json");
+  installFakeCodex(binDir);
+  initGitRepo(repo);
+  fs.writeFileSync(path.join(repo, "README.md"), "hello\n");
+  run("git", ["add", "README.md"], { cwd: repo });
+  run("git", ["commit", "-m", "init"], { cwd: repo });
+
+  for (const [flags, expected] of [[["--danger"], "danger-full-access"], [["--write"], "workspace-write"], [[], "read-only"]]) {
+    const result = run("node", [SCRIPT, "task", ...flags, "diagnose the failing test"], { cwd: repo, env: buildEnv(binDir) });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(fs.readFileSync(statePath, "utf8")).lastThreadStartSandbox, expected);
+  }
+});
